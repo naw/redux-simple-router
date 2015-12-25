@@ -1,9 +1,10 @@
 const React = require('react');
 const { Link } = require('react-router');
 const { connect } = require('react-redux');
-const { pushPath } = require('redux-simple-router');
+// const { pushPath } = require('redux-simple-router');
+import { changeLocation } from '../ReduxRouterHistory';
 
-function App({ pushPath, children }) {
+function App({ changeLocation, children }) {
   return (
     <div>
       <header>
@@ -16,7 +17,7 @@ function App({ pushPath, children }) {
         <Link to="/bar">Bar</Link>
       </header>
       <div>
-        <button onClick={() => pushPath('/foo')}>Go to /foo</button>
+        <button onClick={() => changeLocation('/foo')}>Go to /foo</button>
       </div>
       <div style={{marginTop: '1.5em'}}>{children}</div>
     </div>
@@ -25,5 +26,5 @@ function App({ pushPath, children }) {
 
 module.exports = connect(
   null,
-  { pushPath }
+  { changeLocation }
 )(App);

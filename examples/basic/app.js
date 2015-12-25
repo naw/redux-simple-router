@@ -4,7 +4,11 @@ const { compose, createStore, combineReducers } = require('redux');
 const { Provider } = require('react-redux');
 const { Router, Route, IndexRoute } = require('react-router');
 const createHistory = require('history/lib/createHashHistory');
-const { syncReduxAndRouter, routeReducer } = require('redux-simple-router');
+// const { syncReduxAndRouter, routeReducer } = require('redux-simple-router');
+
+import { createReduxRouterHistory, historyReducer} from './ReduxRouterHistory';
+
+
 import { devTools } from 'redux-devtools';
 const { DevTools, DebugPanel, LogMonitor } = require('redux-devtools/lib/react');
 
@@ -12,7 +16,7 @@ const reducers = require('./reducers');
 const { App, Home, Foo, Bar } = require('./components');
 
 const reducer = combineReducers(Object.assign({}, reducers, {
-  routing: routeReducer
+  history: historyReducer
 }));
 const finalCreateStore = compose(
   devTools()
@@ -20,12 +24,13 @@ const finalCreateStore = compose(
 const store = finalCreateStore(reducer);
 const history = createHistory();
 
-syncReduxAndRouter(history, store);
+// syncReduxAndRouter(history, store);
+const reduxRouterHistory = createReduxRouterHistory(history, store);
 
 ReactDOM.render(
   <Provider store={store}>
     <div>
-      <Router history={history}>
+      <Router history={reduxRouterHistory}>
         <Route path="/" component={App}>
           <IndexRoute component={Home}/>
           <Route path="foo" component={Foo}/>
