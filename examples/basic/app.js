@@ -20,12 +20,12 @@ const finalCreateStore = compose(
 const store = finalCreateStore(reducer);
 const history = createHistory();
 
-syncReduxAndRouter(history, store);
+const reduxRouterHistory = syncReduxAndRouter(history, store);
 
 ReactDOM.render(
   <Provider store={store}>
     <div>
-      <Router history={history}>
+      <Router history={reduxRouterHistory}>
         <Route path="/" component={App}>
           <IndexRoute component={Home}/>
           <Route path="foo" component={Foo}/>

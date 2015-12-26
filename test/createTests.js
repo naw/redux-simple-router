@@ -31,8 +31,8 @@ function createSyncedHistoryAndStore(createHistory) {
     routing: routeReducer
   }))
   const history = createHistory()
-  const unsubscribe = syncReduxAndRouter(history, store)
-  return { history, store, unsubscribe }
+  const reduxRouterHistory = syncReduxAndRouter(history, store)
+  return { history, store, reduxRouterHistory }
 }
 
 const defaultReset = () => {}
@@ -49,18 +49,16 @@ module.exports = function createTests(createHistory, name, reset = defaultReset)
           payload: {
             path: '/foo',
             replace: false,
-            state: { bar: 'baz' },
-            avoidRouterUpdate: false
+            state: { bar: 'baz' }
           }
         })
 
-        expect(pushPath('/foo', undefined, { avoidRouterUpdate: true })).toEqual({
+        expect(pushPath('/foo', undefined)).toEqual({
           type: UPDATE_PATH,
           payload: {
             path: '/foo',
             state: undefined,
             replace: false,
-            avoidRouterUpdate: true
           }
         })
       })
@@ -74,27 +72,24 @@ module.exports = function createTests(createHistory, name, reset = defaultReset)
             path: '/foo',
             replace: true,
             state: { bar: 'baz' },
-            avoidRouterUpdate: false
           }
         })
 
-        expect(replacePath('/foo', undefined, { avoidRouterUpdate: true })).toEqual({
+        expect(replacePath('/foo', undefined)).toEqual({
           type: UPDATE_PATH,
           payload: {
             path: '/foo',
             state: undefined,
             replace: true,
-            avoidRouterUpdate: true
           }
         })
 
-        expect(replacePath('/foo', undefined, { avoidRouterUpdate: false })).toEqual({
+        expect(replacePath('/foo', undefined)).toEqual({
           type: UPDATE_PATH,
           payload: {
             path: '/foo',
             state: undefined,
             replace: true,
-            avoidRouterUpdate: false
           }
         })
       })
@@ -127,29 +122,12 @@ module.exports = function createTests(createHistory, name, reset = defaultReset)
           payload: {
             path: '/bar',
             replace: true,
-            avoidRouterUpdate: false
           }
         })).toEqual({
           path: '/bar',
           replace: true,
           state: undefined,
           changeId: 2
-        })
-      })
-
-      it('respects `avoidRouterUpdate` flag', () => {
-        expect(routeReducer(state, {
-          type: UPDATE_PATH,
-          payload: {
-            path: '/bar',
-            replace: false,
-            avoidRouterUpdate: true
-          }
-        })).toEqual({
-          path: '/bar',
-          replace: false,
-          state: undefined,
-          changeId: 1
         })
       })
     })
@@ -172,7 +150,8 @@ module.exports = function createTests(createHistory, name, reset = defaultReset)
         // Set initial URL before syncing
         history.push('/foo')
 
-        unsubscribe = syncReduxAndRouter(history, store)
+        const reduxRouterHistory = syncReduxAndRouter(history, store)
+        unsubscribe = reduxRouterHistory.unsubscribe
       })
 
       afterEach(() => {
@@ -244,7 +223,8 @@ module.exports = function createTests(createHistory, name, reset = defaultReset)
         let synced = createSyncedHistoryAndStore(createHistory)
         history = synced.history
         store = synced.store
-        unsubscribe = synced.unsubscribe
+        const reduxRouterHistory = synced.reduxRouterHistory
+        unsubscribe = reduxRouterHistory.unsubscribe
       })
 
       afterEach(() => {
@@ -299,9 +279,9 @@ module.exports = function createTests(createHistory, name, reset = defaultReset)
           state: null
         })
 
-        history.replace({ 
-          state: { bar: 'baz' }, 
-          pathname: '/bar?query=1' 
+        history.replace({
+          state: { bar: 'baz' },
+          pathname: '/bar?query=1'
         })
         expect(store).toContainRoute({
           path: '/bar?query=1',
@@ -310,7 +290,7 @@ module.exports = function createTests(createHistory, name, reset = defaultReset)
         })
 
         history.replace({
-          state: { bar: 'baz' }, 
+          state: { bar: 'baz' },
           pathname: '/bar?query=1#hash=2'
         })
         expect(store).toContainRoute({
@@ -478,7 +458,8 @@ module.exports = function createTests(createHistory, name, reset = defaultReset)
           routing: routeReducer
         }))
         const history = createHistory()
-        const unsubscribe = syncReduxAndRouter(history, store)
+        const reduxRouterHistory = syncReduxAndRouter(history, store)
+        const unsubscribe = reduxRouterHistory.unsubscribe;
 
         history.push('/foo')
         expect(store).toContainRoute({
